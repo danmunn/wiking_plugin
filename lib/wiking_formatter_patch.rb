@@ -20,12 +20,12 @@ module WikingFormatterPatch
 
     module InstanceMethods
 
-        LT = "&lt;"
-        GT = "&gt;"
+        LT = "&lt;".html_safe
+        GT = "&gt;".html_safe
 
         def textile_warning(tag, attrs, cite, content)
             attrs = shelve(attrs) if attrs
-            "\t<div#{attrs} class=\"wiking flash #{tag}\">#{content}</div>"
+            "\t<div#{attrs} class=\"wiking flash #{tag}\">#{content}</div>".html_safe
         end
 
         alias textile_notice textile_warning
@@ -35,7 +35,7 @@ module WikingFormatterPatch
 
         def block_wiking_blocks(text)
             text.gsub!(WIKING_BLOCK_RE) do |match|
-                "<div class=\"wiking flash #{$1}\">#{$2}</div>"
+                "<div class=\"wiking flash #{$1}\">#{$2}</div>".html_safe
             end
             false
         end
@@ -58,7 +58,7 @@ module WikingFormatterPatch
                         class_name = ''
                     end
                 end
-                "<span class=\"wiking marker marker-#{marker.downcase} #{class_name}\" title=\"#{marker}\"></span>"
+                "<span class=\"wiking marker marker-#{marker.downcase} #{class_name}\" title=\"#{marker}\"></span>".html_safe
             end
         end
 
@@ -90,9 +90,9 @@ module WikingFormatterPatch
                 text.gsub!(%r{(\s|>|^)(!)?(#{regexp})(?=\W|$)}m) do |match|
                     leading, esc, smiley = $1, $2, $3
                     if esc.nil?
-                        leading + "<span title=\"#{smiley}\" class=\"wiking smiley smiley-#{name}\"></span>"
+                        leading.html_safe + "<span title=\"#{smiley}\" class=\"wiking smiley smiley-#{name}\"></span>".html_safe
                     else
-                        leading + smiley
+                        leading.html_safe + smiley.html_safe
                     end
                 end
             end
@@ -102,16 +102,16 @@ module WikingFormatterPatch
             text.gsub!(%r{(-{2,3})}) do |match|
                 case $1
                 when '--'
-                    '&ndash;'
+                    '&ndash;'.html_safe
                 else
-                    '&mdash;'
+                    '&mdash;'.html_safe
                 end
             end
         end
 
         def inline_apostrophe(text)
             text.gsub!(%r{(\w)'}) do |match|
-                "#{$1}&rsquo;"
+                "#{$1}&rsquo;".html_safe
             end
         end
 
@@ -127,7 +127,7 @@ module WikingFormatterPatch
         def inline_arrows(text)
             WIKING_ARROWS.sort{ |a, b| a[1] <=> b[1] }.each do |code, entity|
                 text.gsub!(%r{#{code}}m) do |match|
-                    "&#{entity};"
+                    "&#{entity};".html_safe
                 end
             end
         end

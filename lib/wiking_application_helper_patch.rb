@@ -91,7 +91,7 @@ module WikingApplicationHelperPatch
                 end
             end
 
-            text
+            text.html_safe
         end
 
         WIKING_LINK_RE = %r{(!)?(\[\[(wikipedia|google|redmine|chiliproject)(?:\[([^\]])\])?>([^\]\n\|]+)(?:\|([^\]\n\|]+))?\]\])}
@@ -181,7 +181,7 @@ module WikingApplicationHelperPatch
                         end
                     end
                 end
-                leading + (link || "#{prefix}#{option}#{sep}#{identifier}")
+                leading.html_safe + (link.html_safe || "#{prefix}#{option}#{sep}#{identifier}".html_safe)
             end
 
         end

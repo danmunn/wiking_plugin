@@ -1,26 +1,36 @@
 require 'redmine'
-require 'dispatcher'
-
 require_dependency 'wiking_hook'
 
-RAILS_DEFAULT_LOGGER.info 'Starting WikiNG Plugin for Redmine'
-
-Dispatcher.to_prepare :wiking_plugin do
+if Gem::Version.new("3.0") > Gem::Version.new(Rails.version) then
+  require 'dispatcher'
+  RAILS_DEFAULT_LOGGER.info 'Starting WikiNG Plugin for Redmine <= 1.4'
+  Dispatcher.to_prepare :wiking_plugin do
     unless Redmine::WikiFormatting::Textile::Formatter.included_modules.include?(WikingFormatterPatch)
-        Redmine::WikiFormatting::Textile::Formatter.send(:include, WikingFormatterPatch)
+      Redmine::WikiFormatting::Textile::Formatter.send(:include, WikingFormatterPatch)
+    end
+      unless ApplicationHelper.included_modules.include?(WikingApplicationHelperPatch)
+      ApplicationHelper.send(:include, WikingApplicationHelperPatch)
+    end
+  end
+else
+  Rails.logger.info 'Starting WikiNG Plugin for Redmine >= 2.0'
+  Rails.configuration.to_prepare do
+    unless Redmine::WikiFormatting::Textile::Formatter.included_modules.include?(WikingFormatterPatch)
+      Redmine::WikiFormatting::Textile::Formatter.send(:include, WikingFormatterPatch)
     end
     unless ApplicationHelper.included_modules.include?(WikingApplicationHelperPatch)
-        ApplicationHelper.send(:include, WikingApplicationHelperPatch)
+      ApplicationHelper.send(:include, WikingApplicationHelperPatch)
     end
+  end
 end
 
 Redmine::Plugin.register :wiking_plugin do
     name 'WikiNG'
-    author 'Andriy Lesyuk'
+    author 'Andriy Lesyuk + Community'
     author_url 'http://www.andriylesyuk.com/'
     description 'Wiki Next Generation plugin extends Redmine Wiki syntax.'
-    url 'http://projects.andriylesyuk.com/projects/wiking'
-    version '0.0.1b'
+    url 'https://github.com/danmunn/wiking_plugin'
+    version '0.0.1c'
 end
 
 Redmine::WikiFormatting::Macros.register do
